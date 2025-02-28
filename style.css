@@ -1,3 +1,5 @@
+@import url('/assets/fonts/Inconsolata/Inconsolata-VariableFont_wdth\,wght.ttf');
+
 *{
     padding: none;
     margin: 0;
@@ -15,6 +17,7 @@ body{
 
 .container {
     text-align: center;
+    position: relative;
     background-color: white;
     padding: 40px;
     border-radius: 10px;
@@ -29,4 +32,27 @@ h1 {
 p {
     font-size: 1.2em;
     color: #555;
+}
+#saat {
+    font-size: clamp(7rem, 15vw, 30vw);
+    font-family: "Inconsolata", monospace;
+    display: block;
+}
+.ilerleme{
+    position: relative;
+    width: 100%;
+    height: clamp(3vw,5vw,10vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+progress#ilerleme-gostergesi{
+    position: absolute;
+    width: inherit;
+    height: inherit;
+}
+span#ilerleme-yazisi{
+    position: absolute;
+    font-size: clamp(0.5vw,2vw,4vw);
+    
 }
