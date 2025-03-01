@@ -2,7 +2,7 @@ const kalanZamanGos = document.getElementById("saat");
 const ilerGos = document.getElementById("ilerleme-gostergesi");
 const ilerYaz = document.getElementById("ilerleme-yazisi");
 const anaYazi = document.getElementById("ana-yazi");
-const veriDosyasi = "/src/tempAPI.json";
+const veriDosyasi = "/src/tempAPI copy.json";
 let _veriler = JSON.parse(localStorage.getItem("veriler"));
 // console.log(typeof _veriler);
 let vakitler = [];
@@ -28,9 +28,9 @@ class vakit{
         this.orucMuddet = Math.abs(
             // (this.imsak.toString().split(".")[0]*60+this.imsak.toString().split(".")[1])-
             // (this.aksam.toString().split(".")[0]*60+this.aksam.toString().split(".")[1])            
-            (this.imsak.split(":")[0]*60+this.imsak.split(":")[1])-
-            (this.aksam.split(":")[0]*60+this.aksam.split(":")[1])
-        );
+            (parseInt(this.imsak.split(":")[0])*60+parseInt(this.imsak.split(":")[1]))-
+            (parseInt(this.aksam.split(":")[0])*60+parseInt(this.aksam.split(":")[1]))
+        )*60;
     }
 
     gunuEkle(){
@@ -159,16 +159,19 @@ function kalanZamaniYaz(){
     parseInt((zaman - new Date(zaman.getFullYear(),zaman.getMonth(),zaman.getDate(),bugununVakitleri().imsak.split(":")[0],bugununVakitleri().imsak.split(":")[1]))/1000);
     let siradakiZaman;
     // let fark = saniyeyeCevir(suAnkiSaat) - saniyeyeCevir(bugununVakitleri().aksam);
-    console.log(fark);
+    // console.log(fark);
+    // console.log(zaman);
     switch(true){
         case fark > 0:
             // console.log("büyük");
-            siradakiZaman = bugununVakitleri(1).aksam;
+            siradakiZaman = bugununVakitleri().aksam;
             anaYazi.textContent = "İftara Ne Kadar Kaldı?";
+            console.log(bugununVakitleri());
+            fark = bugununVakitleri().orucMuddet - fark;
             break;
         case fark < 0:
             // console.log("küçük");
-            siradakiZaman = bugununVakitleri().imsak;
+            siradakiZaman = bugununVakitleri(1).imsak;
             anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
             break;
     }
