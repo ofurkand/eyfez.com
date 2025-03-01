@@ -2,7 +2,7 @@ const kalanZamanGos = document.getElementById("saat");
 const ilerGos = document.getElementById("ilerleme-gostergesi");
 const ilerYaz = document.getElementById("ilerleme-yazisi");
 const anaYazi = document.getElementById("ana-yazi");
-const veriDosyasi = "/src/tempAPI copy.json";
+const veriDosyasi = "/src/tempAPI.json";
 let _veriler = JSON.parse(localStorage.getItem("veriler"));
 // console.log(typeof _veriler);
 let vakitler = [];
