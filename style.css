@@ -34,7 +34,7 @@ p {
     color: #555;
 }
 #saat {
-    font-size: clamp(7rem, 15vw, 30vw);
+    font-size: clamp(3rem, 15vw, 30vw);
     font-family: "Inconsolata", monospace;
     display: block;
 }
