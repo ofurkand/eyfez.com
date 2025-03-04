@@ -4,8 +4,13 @@ const ilerYaz = document.getElementById("ilerleme-yazisi");
 const anaYazi = document.getElementById("ana-yazi");
 const veriDosyasi = "/src/tempAPI.json";
 let _veriler = JSON.parse(localStorage.getItem("veriler"));
+let _baslangicGunuIndexi = localStorage.getItem("baslangicGunuIndexi");
+let kaydedilenGunSayisi = 30;
 // console.log(typeof _veriler);
 let vakitler = [];
+let birGundeBulunanMs = 1000 * 60 * 60 * 24;
+// let iftarMi = false
+// let simdi = (iftarMi) => iftarMi ? bugununVakitleri().aksam : bugununVakitleri().imsak;
 
 //  // Apisiz, manuel girdiler.
 // let gununIftarVakti = 
@@ -18,24 +23,38 @@ let vakitler = [];
 class vakit{
     constructor(imsakSaat,aksamSaat){
         this.gunuEkle();
-        /** Bu kısım verileri yüklemeye engel oldu.
+        /* Bu kısım verileri yüklemeye engel oldu.
         this.imsak = imsak;
         this.aksam = aksam;
         */
         this.imsak = imsakSaat;
         this.aksam = aksamSaat;
         // this.imsak = parseFloat(imsakSaat).toFixed(2);
-        this.orucMuddet = Math.abs(
-            // (this.imsak.toString().split(".")[0]*60+this.imsak.toString().split(".")[1])-
-            // (this.aksam.toString().split(".")[0]*60+this.aksam.toString().split(".")[1])            
-            (parseInt(this.imsak.split(":")[0])*60+parseInt(this.imsak.split(":")[1]))-
-            (parseInt(this.aksam.split(":")[0])*60+parseInt(this.aksam.split(":")[1]))
-        )*60;
+        // this.orucMuddet = Math.abs(
+        //     // (this.imsak.toString().split(".")[0]*60+this.imsak.toString().split(".")[1])-
+        //     // (this.aksam.toString().split(".")[0]*60+this.aksam.toString().split(".")[1])            
+        //     (parseInt(this.imsak.split(":")[0])*60+parseInt(this.imsak.split(":")[1]))-
+        //     (parseInt(this.aksam.split(":")[0])*60+parseInt(this.aksam.split(":")[1]))
+        // )*60;
+        // this.tarih = this.dateFormatindaGetir();
     }
 
     gunuEkle(){
         vakitler.push(this);
     }
+
+    // orucMuddet(){
+    //     return Math.abs(
+    //         // (this.imsak.toString().split(".")[0]*60+this.imsak.toString().split(".")[1])-
+    //         // (this.aksam.toString().split(".")[0]*60+this.aksam.toString().split(".")[1])            
+    //         (parseInt(this.imsak.split(":")[0])*60+parseInt(this.imsak.split(":")[1]))-
+    //         (parseInt(this.aksam.split(":")[0])*60+parseInt(this.aksam.split(":")[1]))
+    //     )*60;
+    // }
+
+    // dateFormatindaGetir(){
+        
+    // }
 }
 
 // try {
@@ -46,28 +65,54 @@ class vakit{
 // }else{
     // } catch (error) {
 
-if (_veriler !== null && _veriler !== undefined) {
-    _veriler.forEach(element => {
-        new vakit(...Object.values(element));
-    });
-    // console.log("Var");
-    sayac();
-}else {
-    // console.log("Yok");
-    fetch(veriDosyasi)
-    .then(res => res.json())
-    .then(data => {
-        data["2025"].forEach(element => {
+function veriIslem(){
+    let bugununGunuIndexi = yilinKacinciGunu()-1;
+    if ((_veriler !== null && _veriler !== undefined)/*&&window.cekilenHaftaBaslangicininGunu >= bugununGunu-6-1*/) {
+        // if (_baslangicGunu !== null && _baslangicGunu !== undefined) {
+        if (!(_baslangicGunuIndexi < bugununGunuIndexi + kaydedilenGunSayisi - 1)) {
+            vakitler = [];
+            localStorage.removeItem("veriler");
+            veriIslem();
+            return;
+        }
+        // }
+        // console.log('vakitler :>> ', vakitler);
+        _veriler.forEach(element => {
             new vakit(...Object.values(element));
-        });}
-    )
-    .then(() => {
-        localStorage.setItem("veriler", JSON.stringify(vakitler));
-        sayac(); 
-    });
-    // .then(()=>{});
-    // .then(x => { main();});    
+        });
+        // console.log("Var");
+        sayac();
+    }else {
+        // console.log("Yok");
+        fetch(veriDosyasi)
+        .then(res => res.json())
+        .then(data => {
+            // data["2025"].forEach(element => {
+            //     new vakit(...Object.values(element));
+            // });}
+            let _veri = data["2025"];
+            // window.cekilenHaftaBaslangicininGunu = bugununGunu;
+            _baslangicGunuIndexi = bugununGunuIndexi;
+            if (vakitler.length === 0) {
+                for (let index = _baslangicGunuIndexi; index < _baslangicGunuIndexi+kaydedilenGunSayisi; index++) {
+                    new vakit(...Object.values(_veri[index]));
+                }// Yüklemenin hızlandırılması amaçlanıyor.
+            }
+        })
+        .then(() => {
+            localStorage.setItem("veriler", JSON.stringify(vakitler));
+            localStorage.setItem("baslangicGunuIndexi", _baslangicGunuIndexi);
+        })
+        .then(()=>{
+            // _baslangicGunuIndexi = localStorage.getItem("baslangicGunuIndexi");
+            sayac();
+        });
+        // .then(()=>{});
+        // .then(x => { main();});    
+    }
 }
+veriIslem();
+
 // function main(){
 //     setInterval(sayac(),1000);
 // }
@@ -78,7 +123,7 @@ if (_veriler !== null && _veriler !== undefined) {
 // localStorage.setItem("veriler", JSON.stringify(vakitler));
 // }
 // const bugununVakitleri = () => vakitler[yilinKacinciGunu() - 1];
-/**
+/*
 if (!vakitler) {
     fetch(veriDosyasi)
     .then(res => res.json())
@@ -113,27 +158,30 @@ if (!vakitler) {
 }
 */
 
-function ilerlemeYuzdesiniYaz(toplamSure,farki) {
+function ilerlemeYuzdesiniYaz(bas,son,fark, iftarMi) {
     // console.log((new Date(zaman.getFullYear(),zaman.getMonth(),zaman.getDate(),toplamSure.split(":")[0],toplamSure.split(":")[1]))/1000);
     // ilerGos.value = bugununVakitleri().or;
     // ilerYaz.textContent = `${yuzde}%`;
+    
 }
 
 function yilinKacinciGunu(tarih = new Date()) {
-    const yilinBasi = new Date(tarih.getFullYear(), 0, 0); // Not: ChatGPT yardımı alındı. Yıl / Ay / Gün şeklinde
+    let yilinBasi = new Date(tarih.getFullYear(), 0, 0); // Not: ChatGPT yardımı alındı. Yıl / Ay / Gün şeklinde
     // bir yapı temel alınabiliyormuş. Bu girdi bize bir önceki senemiz olan 2024 Aralık'ının sonunu gösteriyor 
     // lakin bu; o yılın artık yıl olmasından kaynaklandığından değil, Gün için girilen argümanın 0 olmasındandır.
-    const fark = tarih - yilinBasi;
-    const birGundeBulunanMs = 1000 * 60 * 60 * 24;
-    return parseInt(fark / birGundeBulunanMs)
+    let _fark = tarih - yilinBasi;
+    // console.log('fark :>> ', _fark/birGundeBulunanMs);
+    // console.log('yilinBasi :>> ', yilinBasi);
+    // console.log('tarih :>> ', tarih);
+    return parseInt(_fark/ birGundeBulunanMs) // "kaçıncı" olduğu değeri 0'dan başlamamaktadır, sebebi yukarıda.
 }
 
 // console.log(yilinKacinciGunu(new Date(2025,0,1, 0, 0)));
 // console.log(yilinKacinciGunu());
-
+// console.log(bugununVakitleri());
 // let kSaat,kDakika,kSaniye;
 function kalanZamaniYaz(){
-    let zaman = new Date();
+    let zaman = new Date(); // Şu an
     // console.log(zaman.getDate());
     // console.log(zaman);
     // console.log(gununIftarVakti.toString());
@@ -155,34 +203,110 @@ function kalanZamaniYaz(){
 
     // 2. Deneme
     // let suAnkiSaat = `${zaman.getHours()}:${zaman.getMinutes()}`;
-    let fark = 
-    parseInt((zaman - new Date(zaman.getFullYear(),zaman.getMonth(),zaman.getDate(),bugununVakitleri().imsak.split(":")[0],bugununVakitleri().imsak.split(":")[1]))/1000);
-    let siradakiZaman;
+    
+    // let siradakiZaman = bugununVakitleri().imsak;
+
     // let fark = saniyeyeCevir(suAnkiSaat) - saniyeyeCevir(bugununVakitleri().aksam);
     // console.log(fark);
     // console.log(zaman);
-    switch(true){
-        case fark > 0:
-            // console.log("büyük");
-            siradakiZaman = bugununVakitleri().aksam;
+    // switch(true){
+    //     case fark > 0:
+    //         // console.log("büyük");
+    //         anaYazi.textContent = "İftara Ne Kadar Kaldı?";
+    //         // console.log(bugununVakitleri());
+    //         let _fark = bugununVakitleri().orucMuddet() - fark;
+    //         siradakiZaman = bugununVakitleri(_fark >= 0 ? null : 1).aksam;
+    //         if (_fark < 0){
+    //             _fark = bugununVakitleri(1).orucMuddet() - fark;
+    //         }
+    //         fark = _fark;
+    //         // console.log(siradakiZaman);
+    //         break;
+    //     case fark < 0:
+    //         // console.log("küçük");
+    //         siradakiZaman = bugununVakitleri(1).imsak;
+    //         anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
+    //         break;
+    // }
+
+    // let gununImsaki = new Date(2025, 1, 28, 14, 30); // 28 Şubat 2025, 14:30
+    // let gunun = new Date(2025, 1, 28, 16, 45); // 28 Şubat 2025, 16:45
+
+    // if (saat1.getTime() < saat2.getTime()) {
+    //     console.log("Saat1 daha önce.");
+    // } else if (saat1.getTime() > saat2.getTime()) {
+    //     console.log("Saat2 daha önce.");
+    // } else {
+    //     console.log("Saatler eşit.");
+    // }
+
+    // if(fark >= 0){ // Sahurdan sonra
+    //     fark = 
+    //     parseInt(
+    //         (zaman - 
+    //             new Date(zaman.getFullYear(),zaman.getMonth(),
+    //             zaman.getDate(),bugununVakitleri().aksam.split(":")[0],bugununVakitleri().aksam.split(":")[1]))/1000);
+    //     if (fark >= 0) {
+    //         // İftardan sonra
+    //         siradakiZaman = bugununVakitleri(1);
+    //     }
+
+    // }
+    // let fark = zamanHesapla(simdi(iftarMi=false),zaman);
+    let fark = zamanHesapla(bugununVakitleri().imsak,zaman);
+    // let fark = zamanHesapla(siradakiZaman,zaman);
+    if (fark <= 0){ // Sahurdan Önce
+        // siradakiZaman = bugununVakitleri().imsak;
+        anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
+    } else { // Sahurdan Sonra
+        fark = zamanHesapla(bugununVakitleri().aksam,zaman);
+        if (fark <= 0){ // İftardan Önce
             anaYazi.textContent = "İftara Ne Kadar Kaldı?";
-            console.log(bugununVakitleri());
-            fark = bugununVakitleri().orucMuddet - fark;
-            break;
-        case fark < 0:
-            // console.log("küçük");
-            siradakiZaman = bugununVakitleri(1).imsak;
-            anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
-            break;
+        } else { // Gün Bitimi
+            fark = zamanHesapla(bugununVakitleri(1).imsak,zaman);
+            anaYazi.textContent = "Sıradaki Sahura Ne Kadar Kaldı?";
+        }
     }
+
+    ilerlemeYuzdesiniYaz(fark);
     fark < 0 ? fark = fark*-1 : fark = fark;
     kalanZamanGos.textContent = 
     `${parseInt(fark/60**2).toString().padStart(2,"0")}:${(parseInt(fark/60)%60).toString().padStart(2,"0")}:${(fark%60).toString().padStart(2,"0")}`;
-    ilerlemeYuzdesiniYaz(siradakiZaman,fark,zaman);
+
     // console.log(fark);
     // console.log(siradakiZaman);
     // console.log(fark);
     // console.log(bugununVakitleri().imsak);
+}
+
+
+/**
+ * Günün belirli bir saatine kadarki farkı gösterir.
+ * @param {string} _hedefZaman - Saat formatı (Örn: "19:03"), hedef zamanı işaret eder.
+ * @param {Date} _baslangicZamani - Başlangıç zamanını işaret eder (varsayılan: anlık saat).
+ * @returns - Kaç saniyelik fark olduğudur.
+ */
+//@param {boolean} geriSayim
+function zamanHesapla(_hedefZaman,_baslangicZamani = new Date()/*, geriSayim = true*/){
+    // switch(geriSayim){
+    //     case true:
+    return parseInt(
+        (_baslangicZamani - 
+            new Date(_baslangicZamani.getFullYear(),_baslangicZamani.getMonth(),
+            _baslangicZamani.getDate(),_hedefZaman.split(":")[0],_hedefZaman.split(":")[1]))/1000);
+        // case false:
+        //     return parseInt(
+        //         (_baslamaZamani + 
+        //             new Date(_baslamaZamani.getFullYear(),_baslamaZamani.getMonth(),
+        //             _baslamaZamani.getDate(),_hedefZaman.split(":")[0],_hedefZaman.split(":")[1]))/1000);
+    // }
+
+    // eval fonksiyonunda hata bulunmakta.
+    // return parseInt(
+    //     eval(_zaman, 
+    //         geriSayim ? "-":"+", 
+    //         new Date(_zaman.getFullYear(),_zaman.getMonth(),_zaman.getDate(),_vakit.split(":")[0],_vakit.split(":")[1]))
+    //     /1000)
 }
 
 // function saniyeyeCevir(saat){
@@ -199,13 +323,17 @@ function kalanZamaniYaz(){
 // kalanZamaniYaz();
 
 function bugununVakitleri(sonrakiGun = 0){
-    return vakitler[yilinKacinciGunu() - 1 + sonrakiGun]
+    // return vakitler[yilinKacinciGunu() - 1 + sonrakiGun]
+    // console.log('vakitler :>> ', vakitler);
+    return vakitler[sonrakiGun + ((yilinKacinciGunu()-1)-_baslangicGunuIndexi)]
 }
 
 function sayac(){
     console.log("Başlatıldı");
     kalanZamaniYaz();
     setInterval(kalanZamaniYaz,1000);
+    // Günlük kontrol devre-dışı
+    // setInterval(veriIslem(),birGundeBulunanMs);
 }
 
 // Example: Update the progress every second
