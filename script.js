@@ -97,6 +97,7 @@ function veriIslem(){
                 for (let index = _baslangicGunuIndexi; index < _baslangicGunuIndexi+kaydedilenGunSayisi; index++) {
                     new vakit(...Object.values(_veri[index]));
                 }// Yüklemenin hızlandırılması amaçlanıyor.
+                window.gecmisGun = new vakit(...Object.values(_veri[_baslangicGunuIndexi-1]));
             }
         })
         .then(() => {
@@ -158,10 +159,19 @@ if (!vakitler) {
 }
 */
 
-function ilerlemeYuzdesiniYaz(bas,son,fark, iftarMi) {
+function ilerlemeYuzdesiniYaz(fark) {
     // console.log((new Date(zaman.getFullYear(),zaman.getMonth(),zaman.getDate(),toplamSure.split(":")[0],toplamSure.split(":")[1]))/1000);
     // ilerGos.value = bugununVakitleri().or;
     // ilerYaz.textContent = `${yuzde}%`;
+    // console.log(gecmisGun);
+    // switch(anaYazi){
+    //     case "İftara Ne Kadar Kaldı?":
+    //         ((((parseInt(this.imsak.split(":")[0])*60+parseInt(this.imsak.split(":")[1]))-
+    //             (parseInt(this.aksam.split(":")[0])*60+parseInt(this.aksam.split(":")[1]))
+    //         )*60)**2)**0.5 // ternary operator adı veriliyormuş. Math.abs() kullanılmasına gerek kalmadı.
+    //     case "Sahura Ne Kadar Kaldı?":
+
+    // }
     
 }
 
@@ -271,7 +281,9 @@ function kalanZamaniYaz(){
     ilerlemeYuzdesiniYaz(fark);
     fark < 0 ? fark = fark*-1 : fark = fark;
     kalanZamanGos.textContent = 
-    `${parseInt(fark/60**2).toString().padStart(2,"0")}:${(parseInt(fark/60)%60).toString().padStart(2,"0")}:${(fark%60).toString().padStart(2,"0")}`;
+    `${parseInt(fark/60**2).toString().padStart(2,"0")}:${
+        (parseInt(fark/60)%60).toString().padStart(2,"0")}:${
+            (fark%60).toString().padStart(2,"0")}`;
 
     // console.log(fark);
     // console.log(siradakiZaman);
@@ -293,7 +305,7 @@ function zamanHesapla(_hedefZaman,_baslangicZamani = new Date()/*, geriSayim = t
     return parseInt(
         (_baslangicZamani - 
             new Date(_baslangicZamani.getFullYear(),_baslangicZamani.getMonth(),
-            _baslangicZamani.getDate(),_hedefZaman.split(":")[0],_hedefZaman.split(":")[1]))/1000);
+            _baslangicZamani.getDate(),_hedefZaman.split(":")[0],_hedefZaman.split(":")[1])+(anaYazi.textContent === "Sıradaki Sahura Ne Kadar Kaldı?"?birGundeBulunanMs:0))/1000);
         // case false:
         //     return parseInt(
         //         (_baslamaZamani + 
