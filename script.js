@@ -263,21 +263,53 @@ function kalanZamaniYaz(){
 
     // }
     // let fark = zamanHesapla(simdi(iftarMi=false),zaman);
-    let fark = zamanHesapla(bugununVakitleri().imsak,zaman);
-    // let fark = zamanHesapla(siradakiZaman,zaman);
-    if (fark <= 0){ // Sahurdan Önce
-        // siradakiZaman = bugununVakitleri().imsak;
-        anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
-    } else { // Sahurdan Sonra
-        fark = zamanHesapla(bugununVakitleri().aksam,zaman);
-        if (fark <= 0){ // İftardan Önce
+    // let gunBittiMi = zamanHesapla(bugununVakitleri().aksam,zaman) > 0;
+    // console.log(gunBittiMi);
+    // let fark = (gunBittiMi ? zamanHesapla(bugununVakitleri(1).imsak) : zamanHesapla(bugununVakitleri().imsak),zaman);
+    // console.log(gunBittiMi);
+    // if (gunBittiMi) {
+    //     // fark = zamanHesapla(bugununVakitleri(1).imsak,zaman);
+    //     anaYazi.textContent = "Sıradaki Sahura Ne Kadar Kaldı?";
+    //     console.log(fark);
+    // }
+    // else{
+
+    // // let fark = zamanHesapla(siradakiZaman,zaman);
+    //     if (fark <= 0){ // Sahurdan Önce
+    //         // siradakiZaman = bugununVakitleri().imsak;
+    //         anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
+    //         // console.log(fark);
+    //     } else { // Sahurdan Sonra
+    //         fark = zamanHesapla(bugununVakitleri().aksam,zaman);
+    //         console.log(fark);
+
+    //         if (fark <= 0){ // İftardan Önce
+    //             anaYazi.textContent = "İftara Ne Kadar Kaldı?";
+
+    //         } 
+    //         // else { // Gün Bitimi
+    //         //     fark = zamanHesapla(bugununVakitleri(1).imsak,zaman);
+    //         //     anaYazi.textContent = "Sıradaki Sahura Ne Kadar Kaldı?";
+    //         //     console.log(fark);
+
+    //         // }
+    //     }
+    // }
+    
+    let fark = zamanHesapla(bugununVakitleri().aksam,zaman,true);
+
+    if (fark < 0) { // Gün Bitimi
+        fark = zamanHesapla(bugununVakitleri(1).imsak,zaman,true);
+        anaYazi.textContent = "Sıradaki Sahura Ne Kadar Kaldı?";
+    }else{
+        fark = zamanHesapla(bugununVakitleri().imsak,zaman);
+        if (fark > 0) {
+            anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
+        }else{
+            fark = zamanHesapla(bugununVakitleri().aksam,zaman);
             anaYazi.textContent = "İftara Ne Kadar Kaldı?";
-        } else { // Gün Bitimi
-            fark = zamanHesapla(bugununVakitleri(1).imsak,zaman);
-            anaYazi.textContent = "Sıradaki Sahura Ne Kadar Kaldı?";
         }
     }
-
     ilerlemeYuzdesiniYaz(fark);
     fark < 0 ? fark = fark*-1 : fark = fark;
     kalanZamanGos.textContent = 
@@ -299,13 +331,18 @@ function kalanZamaniYaz(){
  * @returns - Kaç saniyelik fark olduğudur.
  */
 //@param {boolean} geriSayim
-function zamanHesapla(_hedefZaman,_baslangicZamani = new Date()/*, geriSayim = true*/){
+function zamanHesapla(_hedefZaman,_baslangicZamani = new Date()/*, geriSayim = true*/,geciciGirdi = false){
     // switch(geriSayim){
     //     case true:
     return parseInt(
         (_baslangicZamani - 
             new Date(_baslangicZamani.getFullYear(),_baslangicZamani.getMonth(),
-            _baslangicZamani.getDate(),_hedefZaman.split(":")[0],_hedefZaman.split(":")[1])+(anaYazi.textContent === "Sıradaki Sahura Ne Kadar Kaldı?"?birGundeBulunanMs:0))/1000);
+            (geciciGirdi?_baslangicZamani.getDate()+1:_baslangicZamani.getDate()),
+            // _baslangicZamani.getDate(),
+            _hedefZaman.split(":")[0],_hedefZaman.split(":")[1]))
+            // +(anaYazi.textContent === "Sıradaki Sahura Ne Kadar Kaldı?"?birGundeBulunanMs:0)
+            // +(geciciGirdi?birGundeBulunanMs:0)
+            /1000);
         // case false:
         //     return parseInt(
         //         (_baslamaZamani + 
