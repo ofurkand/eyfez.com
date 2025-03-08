@@ -192,6 +192,7 @@ function yilinKacinciGunu(tarih = new Date()) {
 // let kSaat,kDakika,kSaniye;
 function kalanZamaniYaz(){
     let zaman = new Date(); // Şu an
+    // zaman.setHours(zaman.getHours()+18); // Hata Çözme Yardımcısı
     // console.log(zaman.getDate());
     // console.log(zaman);
     // console.log(gununIftarVakti.toString());
@@ -298,12 +299,13 @@ function kalanZamaniYaz(){
     
     let fark = zamanHesapla(bugununVakitleri().aksam,zaman,true);
 
-    if (fark < 0) { // Gün Bitimi
+
+    if (fark < 0 && !(fark + parseInt(birGundeBulunanMs/1000) < 0)) { // Gün Bitimi
         fark = zamanHesapla(bugununVakitleri(1).imsak,zaman,true);
         anaYazi.textContent = "Sıradaki Sahura Ne Kadar Kaldı?";
     }else{
         fark = zamanHesapla(bugununVakitleri().imsak,zaman);
-        if (fark > 0) {
+        if (fark <= 0) {
             anaYazi.textContent = "Sahura Ne Kadar Kaldı?";
         }else{
             fark = zamanHesapla(bugununVakitleri().aksam,zaman);
